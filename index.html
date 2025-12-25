@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>À quoi ai-je droit ?</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #ede9fe, #f5f3ff);
+  padding: 20px;
+}
+
+.container {
+  max-width: 550px;
+  margin: auto;
+  background: white;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+h1 {
+  color: #5b21b6;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+p {
+  text-align: center;
+  color: #555;
+}
+
+label {
+  font-weight: bold;
+  display: block;
+  margin-top: 15px;
+}
+
+select, input, button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 6px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 15px;
+}
+
+button {
+  background: #5b21b6;
+  color: white;
+  border: none;
+  margin-top: 20px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #4c1d95;
+}
+
+.result {
+  margin-top: 20px;
+  background: #ede9fe;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.small {
+  font-size: 12px;
+  color: #666;
+  margin-top: 15px;
+}
+
+.share-btn {
+  background: #9333ea;
+  margin-top: 10px;
+}
+
+.share-btn:hover {
+  background: #7e22ce;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h1>À quoi ai-je droit ?</h1>
+  <p>Découvrez rapidement les aides possibles selon votre situation.</p>
+
+  <label>Âge</label>
+  <input type="number" id="age" placeholder="Ex : 25">
+
+  <label>Situation</label>
+  <select id="situation">
+    <option value="etudiant">Étudiant</option>
+    <option value="salarie">Salarié</option>
+    <option value="sans">Sans emploi</option>
+    <option value="retraite">Retraité</option>
+    <option value="handicap">Personne en situation de handicap</option>
+  </select>
+
+  <label>Revenus mensuels (€)</label>
+  <input type="number" id="revenus" placeholder="Ex : 1200">
+
+  <label>Logement</label>
+  <select id="logement">
+    <option value="locataire">Locataire</option>
+    <option value="proprietaire">Propriétaire</option>
+    <option value="heberge">Hébergé gratuitement</option>
+  </select>
+
+  <label>Situation familiale</label>
+  <select id="famille">
+    <option value="celibataire">Célibataire</option>
+    <option value="couple">Couple sans enfant</option>
+    <option value="couple_enfant">Couple avec enfants</option>
+    <option value="parent_seul">Parent seul</option>
+  </select>
+
+  <button onclick="verifier()">Vérifier mes droits</button>
+
+  <div id="resultat" class="result" style="display:none;"></div>
+
+  <button class="share-btn" onclick="partager()" style="display:none;">Partager le résultat</button>
+
+  <div class="small">
+    ⚠️ Résultats indicatifs. Vérifiez toujours sur <a href="https://www.service-public.fr/" target="_blank">service-public.fr</a>
+  </div>
+</div>
+
+<script>
+function verifier() {
+  const age = parseInt(document.getElementById("age").value || 0);
+  const situation = document.getElementById("situation").value;
+  const revenus = parseInt(document.getElementById("revenus").value || 0);
+  const logement = document.getElementById("logement").value;
+  const famille = document.getElementById("famille").value;
+
+  let aides = [];
+
+  // Logement
+  if (logement === "locataire") {
+    aides.push("✔️ APL / AL possible");
+  }
+  if (logement === "proprietaire" && revenus < 1200) {
+    aides.push("✔️ Allocation logement pour propriétaire possible");
+  }
+
+  // Étudiant
+  if (situation === "etudiant") {
+    aides.push("✔️ Aides étudiantes possibles");
+    if (age <= 26) {
+      aides.push("✔️ Bourse étudiante possible");
+    }
+  }
+
+  // Salarié
+  if (situation === "salarie" && revenus < 1500) {
+    aides.push("✔️ Prime d’activité possible");
+  }
+
+  // Sans emploi
+  if (situation === "sans" && revenus < 600) {
+    aides.push("✔️ RSA possible");
+    aides.push("✔️ Prime de Noël possible");
+  }
+
+  // Retraité
+  if (situation === "retraite" && revenus < 1200) {
+    aides.push("✔️ Minimum vieillesse possible");
+    aides.push("✔️ Allocation logement pour retraités possible");
+  }
+
+  // Personne handicapée
+  if (situation === "handicap") {
+    aides.push("✔️ Allocation adulte handicapé (AAH) possible");
+  }
+
+  // Allocations familiales
+  if (famille === "parent_seul" || famille === "couple_enfant") {
+    aides.push("✔️ Allocations familiales possibles");
+  }
+
+  // Chèque énergie
+  if (revenus < 1100 || famille === "parent_seul" || famille === "couple_enfant") {
+    aides.push("✔️ Chèque énergie possible");
+  }
+
+  // Aides locales
+  aides.push("✔️ Consultez les aides locales / régionales : <a href='https://www.service-public.fr/' target='_blank'>service-public.fr</a>");
+
+  const resultat = document.getElementById("resultat");
+  resultat.style.display = "block";
+
+  resultat.innerHTML = aides.length
+    ? aides.join("<br><br>") 
+    : "❌ Aucune aide détectée selon ces critères.";
+
+  // Afficher bouton partager
+  document.querySelector(".share-btn").style.display = "block";
+}
+
+// Fonction pour partager le résultat
+function partager() {
+  const resultat = document.getElementById("resultat").innerText;
+  if (navigator.share) {
+    navigator.share({
+      title: "Mes aides possibles",
+      text: resultat
+    }).catch(err => console.log("Partage annulé"));
+  } else {
+    alert("Copiez ce texte pour partager :\n\n" + resultat);
+  }
+}
+</script>
+
+</body>
+</html>
